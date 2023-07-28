@@ -43,7 +43,63 @@ const functions: ChatCompletionFunctions[] = [
       },
       required: ['code']
     }
-  }
+  },
+  {
+    name: 'open_pie_chart_modal',
+    description: 'Open a modal displaying a pie chart using react-chartjs-2.',
+    parameters: {
+      type: 'object',
+      properties: {
+        chartLabel: {
+          type: 'string',
+          description: 'The label for the pie chart.',
+        },
+        labels: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'An array of labels for the data.',
+        },
+        datasets: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              data: {
+                type: 'array',
+                items: {
+                  type: 'number',
+                },
+                description: 'An array of data points, matching the labels array.',
+              },
+              backgroundColor: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                description: 'An array of rgba color values for each data point.',
+              },
+              borderColor: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                description: 'An array of rgba color values for each data point\'s border.',
+              },
+              borderWidth: {
+                type: 'number',
+                description: 'The width of the border for each data point.',
+              },
+            },
+            required: ['data', 'backgroundColor'],
+          },
+        },
+      },
+      required: ['chartLabel', 'labels', 'datasets'],
+    },
+  }  
+  
 ]
 
 export async function POST(req: Request) {

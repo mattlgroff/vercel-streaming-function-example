@@ -3,8 +3,15 @@
 import { Message } from 'ai/react'
 import { useChat } from 'ai/react'
 import { ChatRequest, FunctionCallHandler, nanoid } from 'ai'
+import { useState } from 'react';
+import PieChartModal, { PieChartDataset } from '../components/pie-chart-modal';
 
 export default function Chat() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chartProps, setChartProps] = useState<PieChartDataset>();
+
+  console.log('chartProps', chartProps)
+
   const functionCallHandler: FunctionCallHandler = async (
     chatMessages,
     functionCall
@@ -31,6 +38,24 @@ export default function Chat() {
         return functionResponse
       }
     }
+
+    if (functionCall.name === 'open_pie_chart_modal' && functionCall.arguments) {
+      console.log('functionCall.arguments for open pie chart modal', functionCall.arguments)
+      const chartPropsFromFunctionCall: PieChartDataset = JSON.parse(functionCall.arguments);
+      setChartProps(chartPropsFromFunctionCall);
+      setIsModalOpen(true);
+      return {
+        messages: [
+          ...chatMessages,
+          {
+            id: nanoid(),
+            name: 'open_pie_chart_modal',
+            role: 'function' as const,
+            content: functionCall.arguments
+          }
+        ]
+      }
+    }
   }
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -47,6 +72,12 @@ export default function Chat() {
   }
 
   return (
+    <>
+          <PieChartModal
+        isOpen={isModalOpen} 
+        onRequestClose={() => setIsModalOpen(false)} 
+        chartProps={chartProps}
+      />
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.length > 0
         ? messages.map((m: Message) => (
@@ -73,5 +104,6 @@ export default function Chat() {
         />
       </form>
     </div>
+    </>
   )
 }
